@@ -1,0 +1,7 @@
+*
+
+!.gitignore
+!*.h
+!*.cpp
+!Makefile
+!compile_commands.json

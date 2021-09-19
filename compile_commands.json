@@ -1,0 +1,13 @@
+[
+ {
+  "directory": "/Users/daiki/Desktop/CppGame/c1",
+  "arguments": [
+   "g++",
+   "Main.cpp",
+   "-o",
+   "main",
+   "-lsdl2"
+  ],
+  "file": "Main.cpp"
+ }
+]
