@@ -4,6 +4,7 @@
 #include <sdl2/2.0.16/include/SDL2/SDL_timer.h>
 
 const int thickness = 15;
+const float paddleHeight = 100.0f;
 
 Game::Game()
     : mWindow(nullptr), mIsRunning(true), mRenderer(nullptr), mTicksCount(0) {}
@@ -20,7 +21,7 @@ bool Game::Initialize() {
   //  Window作成
   mWindow = SDL_CreateWindow("Fist Window",          //  タイトル
                              SDL_WINDOWPOS_CENTERED, //  画面のx座標の中心
-                             SDL_WINDOWPOS_CENTERED, // 画面のy座標の中心
+                             SDL_WINDOWPOS_CENTERED, //  画面のy座標の中心
                              1024,                   //  幅
                              768,                    //  高さ
                              0                       //  フラグ
@@ -43,6 +44,12 @@ bool Game::Initialize() {
     SDL_Log("レンダラーの初期化に失敗しました:%s", SDL_GetError());
     return false;
   }
+
+  //  パドルとボールの座標の初期化
+  mPaddlePos.x = 0.0f;
+  mPaddlePos.y = 768.0f / 2.0f;
+  mBallPos.x = 1024.0f / 2.0f;
+  mBallPos.y = 768.0f / 2.0f;
 
   return true;
 }
@@ -102,8 +109,8 @@ void Game::UpdateGame() {
 
   float fps = 1 / deltaTime;
 
-  SDL_Log("deltaTime:%f", deltaTime);
-  SDL_Log("fps:%f", fps);
+  // SDL_Log("deltaTime:%f", deltaTime);
+  // SDL_Log("fps:%f", fps);
 }
 
 void Game::GenerateOutput() {
@@ -139,6 +146,26 @@ void Game::GenerateOutput() {
   wall.w = thickness;
   wall.h = 768;
   SDL_RenderFillRect(mRenderer, &wall);
+
+  //  パドルの生成
+  SDL_Rect paddle{
+      static_cast<int>(mPaddlePos.x),                    // x
+      static_cast<int>(mPaddlePos.y - paddleHeight / 2), // y
+      thickness,                                         // w
+      static_cast<int>(paddleHeight)                     // h
+  };
+
+  SDL_RenderFillRect(mRenderer, &paddle);
+
+  //  ボールの生成
+  SDL_Rect ball{
+      static_cast<int>(mBallPos.x - thickness / 2), // x
+      static_cast<int>(mBallPos.y - thickness / 2), // y
+      thickness,                                    // w
+      thickness                                     // h
+  };
+
+  SDL_RenderFillRect(mRenderer, &ball);
 
   //  フロントバッファとバックバッファの入れ替え
   //  すべての描画処理が終わって最後に処理する
