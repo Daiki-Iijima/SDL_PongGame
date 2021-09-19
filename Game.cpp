@@ -1,5 +1,9 @@
 #include "Game.h"
+#include <sdl2/2.0.16/include/SDL2/SDL_log.h>
 #include <sdl2/2.0.16/include/SDL2/SDL_render.h>
+#include <sdl2/2.0.16/include/SDL2/SDL_timer.h>
+
+const int thickness = 15;
 
 Game::Game() : mWindow(nullptr), mIsRunning(true), mRenderer(nullptr) {}
 
@@ -13,8 +17,13 @@ bool Game::Initialize() {
   }
 
   //  Window作成
-  mWindow = SDL_CreateWindow("Fist Window", SDL_WINDOWPOS_CENTERED,
-                             SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+  mWindow = SDL_CreateWindow("Fist Window",          //  タイトル
+                             SDL_WINDOWPOS_CENTERED, //  画面のx座標の中心
+                             SDL_WINDOWPOS_CENTERED, // 画面のy座標の中心
+                             640,                    //  幅
+                             480,                    //  高さ
+                             0                       //  フラグ
+  );
 
   if (!mWindow) {
     SDL_Log("ウィンドウの初期化に失敗しました:%s", SDL_GetError());
@@ -72,4 +81,29 @@ void Game::ProcessInput() {
 }
 
 void Game::UpdateGame() {}
-void Game::GenerateOutput() {}
+void Game::GenerateOutput() {
+  //  === バックバッファに描画 ===
+  //  色の設定
+  SDL_SetRenderDrawColor(mRenderer, 255, 0, 0, 255);
+  //  バックバッファを塗りつぶす
+  SDL_RenderClear(mRenderer);
+
+  //  壁(四角)を描画する
+  //  色の設定
+  SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 255);
+
+  //  長方形のRect構造体を生成
+  SDL_Rect wall{
+      0,        // 左上隅からのx
+      0,        // 左上隅からのy
+      1024,     // 幅
+      thickness // 高さ
+  };
+
+  //  中を塗りつぶした長方形を描画する
+  SDL_RenderFillRect(mRenderer, &wall);
+
+  //  フロントバッファとバックバッファの入れ替え
+  //  すべての描画処理が終わって最後に処理する
+  SDL_RenderPresent(mRenderer);
+}
