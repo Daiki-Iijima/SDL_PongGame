@@ -82,7 +82,21 @@ void Game::ProcessInput() {
 }
 
 void Game::UpdateGame() {
+
+  //  フレームレート制限を設ける
+  //  左の引数が、右の引数を超えていればtrueを返す
+  //  1fが0.016ms(60FPS)より早かった場合、0.16を超えるまで待つ
+  float frame = (1.0 / 30.0) * 1000;
+  while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + frame))
+    ;
+
   float deltaTime = (SDL_GetTicks() - mTicksCount) / 1000.0f;
+
+  //  デルタタイムが大きくなりすぎることを防ぐ
+  //  1fが0.05ms(20FPS)より遅かった場合、下限を20FPSにする
+  if (deltaTime > 0.05f) {
+    deltaTime = 0.05f;
+  }
 
   mTicksCount = SDL_GetTicks();
 
