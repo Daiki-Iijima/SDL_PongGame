@@ -23,4 +23,6 @@ private:
   SDL_Window *mWindow;
   //  ゲームの続行を指示する
   bool mIsRunning;
+  //  SDLの描画で使用する
+  SDL_Renderer *mRenderer;
 };
