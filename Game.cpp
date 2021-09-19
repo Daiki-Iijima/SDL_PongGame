@@ -21,8 +21,8 @@ bool Game::Initialize() {
   mWindow = SDL_CreateWindow("Fist Window",          //  タイトル
                              SDL_WINDOWPOS_CENTERED, //  画面のx座標の中心
                              SDL_WINDOWPOS_CENTERED, // 画面のy座標の中心
-                             640,                    //  幅
-                             480,                    //  高さ
+                             1024,                   //  幅
+                             768,                    //  高さ
                              0                       //  フラグ
   );
 
@@ -86,7 +86,7 @@ void Game::UpdateGame() {
   //  フレームレート制限を設ける
   //  左の引数が、右の引数を超えていればtrueを返す
   //  1fが0.016ms(60FPS)より早かった場合、0.16を超えるまで待つ
-  float frame = (1.0 / 30.0) * 1000;
+  float frame = (1.0 / 60.0) * 1000;
   while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + frame))
     ;
 
@@ -114,9 +114,10 @@ void Game::GenerateOutput() {
   SDL_RenderClear(mRenderer);
 
   //  壁(四角)を描画する
-  //  色の設定
+  //  色の設定(白)
   SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 255);
 
+  //  上の壁を生成
   //  長方形のRect構造体を生成
   SDL_Rect wall{
       0,        // 左上隅からのx
@@ -126,6 +127,17 @@ void Game::GenerateOutput() {
   };
 
   //  中を塗りつぶした長方形を描画する
+  SDL_RenderFillRect(mRenderer, &wall);
+
+  //  下の壁を生成
+  wall.y = 768 - thickness;
+  SDL_RenderFillRect(mRenderer, &wall);
+
+  //  右の壁を生成
+  wall.x = 1024 - thickness;
+  wall.y = 0;
+  wall.w = thickness;
+  wall.h = 768;
   SDL_RenderFillRect(mRenderer, &wall);
 
   //  フロントバッファとバックバッファの入れ替え
