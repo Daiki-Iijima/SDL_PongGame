@@ -19,6 +19,9 @@ private:
   void UpdateGame();
   void GenerateOutput();
 
+  //  デルタタイム計算用
+  Uint32 mTicksCount;
+
   //  SDLが作成するウィンドウ
   SDL_Window *mWindow;
   //  ゲームの続行を指示する

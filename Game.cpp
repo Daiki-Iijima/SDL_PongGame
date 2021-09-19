@@ -5,7 +5,8 @@
 
 const int thickness = 15;
 
-Game::Game() : mWindow(nullptr), mIsRunning(true), mRenderer(nullptr) {}
+Game::Game()
+    : mWindow(nullptr), mIsRunning(true), mRenderer(nullptr), mTicksCount(0) {}
 
 bool Game::Initialize() {
 
@@ -80,7 +81,17 @@ void Game::ProcessInput() {
   }
 }
 
-void Game::UpdateGame() {}
+void Game::UpdateGame() {
+  float deltaTime = (SDL_GetTicks() - mTicksCount) / 1000.0f;
+
+  mTicksCount = SDL_GetTicks();
+
+  float fps = 1 / deltaTime;
+
+  SDL_Log("deltaTime:%f", deltaTime);
+  SDL_Log("fps:%f", fps);
+}
+
 void Game::GenerateOutput() {
   //  === バックバッファに描画 ===
   //  色の設定
