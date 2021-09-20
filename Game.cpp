@@ -92,10 +92,10 @@ void Game::ProcessInput() {
   mPaddleDir = 0;
   //  キー入力
   if (state[SDL_SCANCODE_S]) {
-    mPaddleDir -= 1;
+    mPaddleDir += 1;
   }
   if (state[SDL_SCANCODE_W]) {
-    mPaddleDir += 1;
+    mPaddleDir -= 1;
   }
 }
 
