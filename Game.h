@@ -41,4 +41,6 @@ private:
   int mPaddleDir;
   //  ボールの座標
   Vector2 mBallPos;
+  //  ボールの移動速度(Velocity)
+  Vector2 mBallVel;
 };

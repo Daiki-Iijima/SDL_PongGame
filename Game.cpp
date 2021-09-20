@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <cstdio>
 #include <sdl2/2.0.16/include/SDL2/SDL_log.h>
 #include <sdl2/2.0.16/include/SDL2/SDL_render.h>
 #include <sdl2/2.0.16/include/SDL2/SDL_scancode.h>
@@ -52,6 +53,8 @@ bool Game::Initialize() {
   mPaddlePos.y = 768.0f / 2.0f;
   mBallPos.x = 1024.0f / 2.0f;
   mBallPos.y = 768.0f / 2.0f;
+  mBallVel.x = -200.0f;
+  mBallVel.y = -235.0f;
 
   return true;
 }
@@ -133,6 +136,45 @@ void Game::UpdateGame() {
   }
   if (mPaddleDir == 1 && mPaddlePos.y > 768 - (paddleHeight / 2) - thickness) {
     mPaddlePos.y = 768 - (paddleHeight / 2) - thickness;
+  }
+
+  //  ボールの移動
+  mBallPos.x += mBallVel.x * deltaTime;
+  mBallPos.y += mBallVel.y * deltaTime;
+
+  //  ボールのあたり判定
+  //  上の壁
+  if (mBallPos.y <= thickness && mBallVel.y < 0.0f) {
+    mBallVel.y *= -1;
+  }
+  //  下の壁
+  if (mBallPos.y >= 768 - thickness && mBallVel.y > 0.0f) {
+    mBallVel.y *= -1;
+  }
+
+  //  右の壁
+  if (mBallPos.x > 1024.0 - thickness && mBallVel.x > 0.0f) {
+    mBallVel.x *= -1;
+  }
+
+  //  左の端から出た場合
+  if (mBallPos.x < 0 && mBallVel.x < 0.0f) {
+    SDL_Log("GameOver");
+    mBallPos.x = 1024.0f / 2.0f;
+    mBallPos.y = 768.0f / 2.0f;
+  }
+
+  //  パドルとのあたり判定
+  //  中心の距離を求める
+  float diffY = mPaddlePos.y - mBallPos.y;
+  //  絶対値を求める
+  diffY = diffY > 0.0f ? diffY : -diffY;
+
+  if (diffY <= paddleHeight / 2 && // パドルを半分にした長さよりも短い範囲
+      mBallPos.x <= mPaddlePos.x + thickness && //  X座標がパドル以下
+      mBallVel.x <= 0.0f)                       //  向きがマイナス
+  {
+    mBallVel.x *= -1;
   }
 }
 
