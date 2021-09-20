@@ -37,6 +37,8 @@ private:
 
   //  パドルの座標
   Vector2 mPaddlePos;
+  //  パドルの移動ベクトル
+  int mPaddleDir;
   //  ボールの座標
   Vector2 mBallPos;
 };

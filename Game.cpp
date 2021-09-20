@@ -1,13 +1,15 @@
 #include "Game.h"
 #include <sdl2/2.0.16/include/SDL2/SDL_log.h>
 #include <sdl2/2.0.16/include/SDL2/SDL_render.h>
+#include <sdl2/2.0.16/include/SDL2/SDL_scancode.h>
 #include <sdl2/2.0.16/include/SDL2/SDL_timer.h>
 
 const int thickness = 15;
 const float paddleHeight = 100.0f;
 
 Game::Game()
-    : mWindow(nullptr), mIsRunning(true), mRenderer(nullptr), mTicksCount(0) {}
+    : mWindow(nullptr), mIsRunning(true), mRenderer(nullptr), mTicksCount(0),
+      mPaddleDir(0) {}
 
 bool Game::Initialize() {
 
@@ -86,6 +88,15 @@ void Game::ProcessInput() {
   if (state[SDL_SCANCODE_ESCAPE]) {
     mIsRunning = false;
   }
+
+  mPaddleDir = 0;
+  //  キー入力
+  if (state[SDL_SCANCODE_S]) {
+    mPaddleDir -= 1;
+  }
+  if (state[SDL_SCANCODE_W]) {
+    mPaddleDir += 1;
+  }
 }
 
 void Game::UpdateGame() {
@@ -107,10 +118,22 @@ void Game::UpdateGame() {
 
   mTicksCount = SDL_GetTicks();
 
-  float fps = 1 / deltaTime;
-
+  // float fps = 1 / deltaTime;
   // SDL_Log("deltaTime:%f", deltaTime);
   // SDL_Log("fps:%f", fps);
+
+  //  パドルの移動
+  mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
+
+  //  パドルの移動制限
+  //  パドルとボールは原点が中心座標
+  //  thicknessを含めているのは、壁を加味するため
+  if (mPaddleDir == -1 && mPaddlePos.y < paddleHeight / 2 + thickness) {
+    mPaddlePos.y = paddleHeight / 2 + thickness;
+  }
+  if (mPaddleDir == 1 && mPaddlePos.y > 768 - (paddleHeight / 2) - thickness) {
+    mPaddlePos.y = 768 - (paddleHeight / 2) - thickness;
+  }
 }
 
 void Game::GenerateOutput() {
