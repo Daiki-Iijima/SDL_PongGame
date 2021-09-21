@@ -10,9 +10,9 @@ const float paddleHeight = 100.0f;
 
 Game::Game()
     : mWindow(nullptr), mRenderer(nullptr), mTicksCount(0), mIsRunning(true),
-      mPaddleDir(0) {}
+      mPaddleDir1(0), mPaddleDir2(0), mUserCount(1) {}
 
-bool Game::Initialize() {
+bool Game::Initialize(int userCount) {
 
   //  SDL初期化
   int sdlResult = SDL_Init(SDL_INIT_VIDEO);
@@ -48,9 +48,15 @@ bool Game::Initialize() {
     return false;
   }
 
+  //  ユーザー数のストア
+  mUserCount = userCount;
+
   //  パドルとボールの座標の初期化
-  mPaddlePos.x = 0.0f;
-  mPaddlePos.y = 768.0f / 2.0f;
+  mPaddlePos1.x = 0.0f;
+  mPaddlePos1.y = 768.0f / 2.0f;
+  mPaddlePos2.x = 1024.0f - thickness;
+  mPaddlePos2.y = 768.0f / 2.0f;
+
   mBallPos.x = 1024.0f / 2.0f;
   mBallPos.y = 768.0f / 2.0f;
   mBallVel.x = -200.0f;
@@ -92,13 +98,25 @@ void Game::ProcessInput() {
     mIsRunning = false;
   }
 
-  mPaddleDir = 0;
+  mPaddleDir1 = 0;
   //  キー入力
   if (state[SDL_SCANCODE_S]) {
-    mPaddleDir += 1;
+    mPaddleDir1 += 1;
   }
   if (state[SDL_SCANCODE_W]) {
-    mPaddleDir -= 1;
+    mPaddleDir1 -= 1;
+  }
+
+  //  ユーザー2
+  if (mUserCount == 2) {
+    mPaddleDir2 = 0;
+    //  キー入力
+    if (state[SDL_SCANCODE_K]) {
+      mPaddleDir2 += 1;
+    }
+    if (state[SDL_SCANCODE_I]) {
+      mPaddleDir2 -= 1;
+    }
   }
 }
 
@@ -125,17 +143,35 @@ void Game::UpdateGame() {
   // SDL_Log("deltaTime:%f", deltaTime);
   // SDL_Log("fps:%f", fps);
 
-  //  パドルの移動
-  mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
+  //  === パドルの移動 ===
+  //  パドル1の移動
+  mPaddlePos1.y += mPaddleDir1 * 300.0f * deltaTime;
 
   //  パドルの移動制限
   //  パドルとボールは原点が中心座標
   //  thicknessを含めているのは、壁を加味するため
-  if (mPaddleDir == -1 && mPaddlePos.y < paddleHeight / 2 + thickness) {
-    mPaddlePos.y = paddleHeight / 2 + thickness;
+  if (mPaddleDir1 == -1 && mPaddlePos1.y < paddleHeight / 2 + thickness) {
+    mPaddlePos1.y = paddleHeight / 2 + thickness;
   }
-  if (mPaddleDir == 1 && mPaddlePos.y > 768 - (paddleHeight / 2) - thickness) {
-    mPaddlePos.y = 768 - (paddleHeight / 2) - thickness;
+  if (mPaddleDir1 == 1 &&
+      mPaddlePos1.y > 768 - (paddleHeight / 2) - thickness) {
+    mPaddlePos1.y = 768 - (paddleHeight / 2) - thickness;
+  }
+
+  //  パドル2の移動
+  if (mUserCount == 2) {
+    mPaddlePos2.y += mPaddleDir2 * 300.0f * deltaTime;
+
+    //  パドルの移動制限
+    //  パドルとボールは原点が中心座標
+    //  thicknessを含めているのは、壁を加味するため
+    if (mPaddleDir2 == -1 && mPaddlePos2.y < paddleHeight / 2 + thickness) {
+      mPaddlePos2.y = paddleHeight / 2 + thickness;
+    }
+    if (mPaddleDir2 == 1 &&
+        mPaddlePos2.y > 768 - (paddleHeight / 2) - thickness) {
+      mPaddlePos2.y = 768 - (paddleHeight / 2) - thickness;
+    }
   }
 
   //  ボールの移動
@@ -152,9 +188,20 @@ void Game::UpdateGame() {
     mBallVel.y *= -1;
   }
 
-  //  右の壁
-  if (mBallPos.x > 1024.0 - thickness && mBallVel.x > 0.0f) {
-    mBallVel.x *= -1;
+  if (mUserCount == 1) {
+    //  右の壁
+    if (mBallPos.x > 1024.0 - thickness && mBallVel.x > 0.0f) {
+      mBallVel.x *= -1;
+    }
+  }
+
+  if (mUserCount == 2) {
+    //  右の壁
+    if (mBallPos.x > 1024.0 - thickness && mBallVel.x > 0.0f) {
+      SDL_Log("GameOver");
+      mBallPos.x = 1024.0f / 2.0f;
+      mBallPos.y = 768.0f / 2.0f;
+    }
   }
 
   //  左の端から出た場合
@@ -165,16 +212,32 @@ void Game::UpdateGame() {
   }
 
   //  パドルとのあたり判定
+  //  ユーザー1
   //  中心の距離を求める
-  float diffY = mPaddlePos.y - mBallPos.y;
+  float diffY = mPaddlePos1.y - mBallPos.y;
   //  絶対値を求める
   diffY = diffY > 0.0f ? diffY : -diffY;
 
   if (diffY <= paddleHeight / 2 && // パドルを半分にした長さよりも短い範囲
-      mBallPos.x <= mPaddlePos.x + thickness && //  X座標がパドル以下
-      mBallVel.x <= 0.0f)                       //  向きがマイナス
+      mBallPos.x <= mPaddlePos1.x + thickness && //  X座標がパドル以下
+      mBallVel.x <= 0.0f)                        //  向きがマイナス
   {
     mBallVel.x *= -1;
+  }
+
+  //  ユーザー2
+  if (mUserCount == 2) {
+    //  中心の距離を求める
+    float diffY = mPaddlePos2.y - mBallPos.y;
+    //  絶対値を求める
+    diffY = diffY > 0.0f ? diffY : -diffY;
+
+    if (diffY <= paddleHeight / 2 && // パドルを半分にした長さよりも短い範囲
+        mBallPos.x >= mPaddlePos2.x - thickness / 2 && //  X座標がパドル以下
+        mBallVel.x >= 0.0f)                            //  向きがマイナス
+    {
+      mBallVel.x *= -1;
+    }
   }
 }
 
@@ -205,19 +268,32 @@ void Game::GenerateOutput() {
   wall.y = 768 - thickness;
   SDL_RenderFillRect(mRenderer, &wall);
 
-  //  右の壁を生成
-  wall.x = 1024 - thickness;
-  wall.y = 0;
-  wall.w = thickness;
-  wall.h = 768;
-  SDL_RenderFillRect(mRenderer, &wall);
+  //  ユーザーが1人だった場合
+  if (mUserCount == 1) {
+    //  右の壁を生成
+    wall.x = 1024 - thickness;
+    wall.y = 0;
+    wall.w = thickness;
+    wall.h = 768;
+    SDL_RenderFillRect(mRenderer, &wall);
+  } else if (mUserCount == 2) { //  ユーザーが2人だった場合
+    //  右側にパドルを生成
+    SDL_Rect paddle{
+        static_cast<int>(mPaddlePos2.x),                    // x
+        static_cast<int>(mPaddlePos2.y - paddleHeight / 2), // y
+        thickness,                                          // w
+        static_cast<int>(paddleHeight)                      // h
+    };
+
+    SDL_RenderFillRect(mRenderer, &paddle);
+  }
 
   //  パドルの生成
   SDL_Rect paddle{
-      static_cast<int>(mPaddlePos.x),                    // x
-      static_cast<int>(mPaddlePos.y - paddleHeight / 2), // y
-      thickness,                                         // w
-      static_cast<int>(paddleHeight)                     // h
+      static_cast<int>(mPaddlePos1.x),                    // x
+      static_cast<int>(mPaddlePos1.y - paddleHeight / 2), // y
+      thickness,                                          // w
+      static_cast<int>(paddleHeight)                      // h
   };
 
   SDL_RenderFillRect(mRenderer, &paddle);

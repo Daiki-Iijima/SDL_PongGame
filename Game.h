@@ -12,7 +12,7 @@ public:
   Game();
 
   //  ゲームの初期化
-  bool Initialize();
+  bool Initialize(int userCount);
 
   //  ゲームオーバーまでのループ
   void RunLoop();
@@ -36,12 +36,20 @@ private:
   //  SDLの描画で使用する
   SDL_Renderer *mRenderer;
 
-  //  パドルの座標
-  Vector2 mPaddlePos;
-  //  パドルの移動ベクトル
-  int mPaddleDir;
+  //  User1パドルの座標
+  Vector2 mPaddlePos1;
+  //  User1パドルの移動ベクトル
+  int mPaddleDir1;
+  //  User2パドルの座標
+  Vector2 mPaddlePos2;
+  //  User2パドルの移動ベクトル
+  int mPaddleDir2;
+
   //  ボールの座標
   Vector2 mBallPos;
   //  ボールの移動速度(Velocity)
   Vector2 mBallVel;
+
+  //  プレイヤーの数
+  int mUserCount;
 };
