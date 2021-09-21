@@ -8,6 +8,7 @@ struct Vector2 {
 
 class Game {
 public:
+  //  コンストラクタ
   Game();
 
   //  ゲームの初期化
