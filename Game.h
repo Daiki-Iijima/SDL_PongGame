@@ -1,9 +1,18 @@
 #include <sdl2/2.0.16/include/SDL2/SDL.h>
+#include <vector>
 
 //  vec2の構造体
 struct Vector2 {
   float x;
   float y;
+};
+
+//  ボールの構造体
+struct Ball {
+  //  ボールの座標
+  Vector2 mBallPos;
+  //  ボールの移動速度(Velocity)
+  Vector2 mBallVel;
 };
 
 class Game {
@@ -45,10 +54,8 @@ private:
   //  User2パドルの移動ベクトル
   int mPaddleDir2;
 
-  //  ボールの座標
-  Vector2 mBallPos;
-  //  ボールの移動速度(Velocity)
-  Vector2 mBallVel;
+  //  ボール
+  std::vector<Ball> mBalls;
 
   //  プレイヤーの数
   int mUserCount;
