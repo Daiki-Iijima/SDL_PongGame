@@ -1,5 +1,11 @@
 # SDL_PongGame
 
+# SDL2のインストール
+homebrewでインストールして開発しています。
+```bash
+brew install SDL2
+```
+
 # コンパイル手順
 makeでビルドしてください
 ```
