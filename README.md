@@ -1,4 +1,7 @@
 # SDL_PongGame
+2人プレイと複数ボールに対応したPongゲームです
+
+![](https://github.com/Daiki-Iijima/SDL_PongGame/blob/main/demo.gif)
 
 # SDL2のインストール
 homebrewでインストールして開発しています。
